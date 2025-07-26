@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk & Daftar - KriyaIn.ai</title>
+    
+    <!-- Menggunakan Tailwind CSS untuk styling yang cepat dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Menggunakan Google Fonts untuk tipografi yang bersih -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Menambahkan font Inter ke body */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style untuk placeholder agar lebih terlihat di tema gelap */
+        .custom-placeholder::placeholder {
+            color: #9CA3AF; /* gray-400 */
+            opacity: 1; 
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+
+    <div class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-4xl bg-gray-800 rounded-2xl shadow-2xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+            
+            <!-- Kolom Kiri: Branding & Gambar (Hanya tampil di desktop) -->
+            <div class="relative hidden md:block">
+                <!-- Gambar Latar BARU -->
+                <img src="https://media.istockphoto.com/id/1346661870/id/foto/keranjang-produk-kerajinan-tradisional.jpg?s=1024x1024&w=is&k=20&c=bIoTayeiFxlaADtowbWly_Zv5ShtZ10ZOSXEWBUMZFM=" 
+                     alt="Pengrajin sedang membuat kerajinan tembikar" 
+                     class="absolute inset-0 w-full h-full object-cover">
+                <!-- Overlay Gelap untuk Keterbacaan Teks -->
+                <div class="absolute inset-0 bg-black/60"></div>
+                <!-- Konten Branding -->
+                <div class="relative z-10 flex flex-col justify-end h-full p-10 text-white">
+                    <h1 class="text-4xl font-bold mb-3">KriyaIn.ai</h1>
+                    <p class="text-lg text-gray-300">Membuka Gerbang Ekspor untuk Karya Terbaik Indonesia.</p>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Form Login & Signup -->
+            <div class="p-8 md:p-12">
+                
+                <!-- Form Login (Tampil secara default) -->
+                <div id="login-form">
+                    <h2 class="text-3xl font-bold text-white mb-2">Selamat Datang Kembali</h2>
+                    <p class="text-gray-400 mb-8">Masuk untuk melanjutkan ke KriyaIn.ai</p>
+
+                    <form>
+                        <div class="mb-4">
+                            <label for="login-email" class="block mb-1 text-sm font-medium text-gray-400">Email</label>
+                            <input type="email" id="login-email" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 custom-placeholder" placeholder="contoh@email.com" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="login-password" class="block mb-1 text-sm font-medium text-gray-400">Password</label>
+                            <input type="password" id="login-password" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 custom-placeholder" placeholder="••••••••" required>
+                            <a href="#" class="text-xs text-amber-500 hover:underline mt-2 block text-right">Lupa Password?</a>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3 px-4 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-semibold transition-colors">Masuk</button>
+                        
+                        <div class="my-6 flex items-center">
+                            <hr class="w-full border-gray-600">
+                            <span class="px-3 text-gray-400 text-sm">atau</span>
+                            <hr class="w-full border-gray-600">
+                        </div>
+
+                        <button type="button" class="w-full py-3 px-4 border border-gray-600 hover:bg-gray-700 rounded-lg flex items-center justify-center gap-2 text-white transition-colors">
+                            <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24s8.955,20,20,20s20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"></path><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"></path><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.222,0-9.617-3.276-11.283-7.943l-6.522,5.025C9.505,39.556,16.227,44,24,44z"></path><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.978,36.218,44,30.608,44,24C44,22.659,43.862,21.35,43.611,20.083z"></path></svg>
+                            Masuk dengan Google
+                        </button>
+                    </form>
+                    
+                    <p class="text-center text-sm text-gray-400 mt-8">
+                        Belum punya akun? <a href="#" id="show-signup" class="text-amber-500 hover:underline font-medium">Daftar di sini</a>
+                    </p>
+                </div>
+
+                <!-- Form Signup (Tersembunyi secara default) -->
+                <div id="signup-form" class="hidden">
+                    <h2 class="text-3xl font-bold text-white mb-2">Buat Akun Baru</h2>
+                    <p class="text-gray-400 mb-8">Mulai perjalanan ekspor Anda bersama KriyaIn.ai</p>
+
+                    <form>
+                        <div class="mb-4">
+                            <label for="signup-name" class="block mb-1 text-sm font-medium text-gray-400">Nama Lengkap</label>
+                            <input type="text" id="signup-name" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 custom-placeholder" placeholder="Nama Anda" required>
+                        </div>
+                        <div class="mb-4">
+                            <label for="signup-email" class="block mb-1 text-sm font-medium text-gray-400">Email</label>
+                            <input type="email" id="signup-email" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 custom-placeholder" placeholder="contoh@email.com" required>
+                        </div>
+                        <div class="mb-6">
+                            <label for="signup-password" class="block mb-1 text-sm font-medium text-gray-400">Password</label>
+                            <input type="password" id="signup-password" class="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 custom-placeholder" placeholder="Minimal 8 karakter" required>
+                        </div>
+                        
+                        <button type="submit" class="w-full py-3 px-4 bg-amber-600 hover:bg-amber-700 rounded-lg text-white font-semibold transition-colors">Daftar</button>
+                    </form>
+
+                    <p class="text-center text-sm text-gray-400 mt-8">
+                        Sudah punya akun? <a href="#" id="show-login" class="text-amber-500 hover:underline font-medium">Masuk di sini</a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript untuk beralih antara form Login dan Signup
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const showSignupBtn = document.getElementById('show-signup');
+        const showLoginBtn = document.getElementById('show-login');
+
+        showSignupBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            signupForm.classList.remove('hidden');
+        });
+
+        showLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            signupForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+        });
+    </script>
+
+</body>
+</html>
