@@ -50,6 +50,21 @@
             fillColor: #007bff;
             fillOpacity: 0.3;
         }
+        /* Indikator Mengetik */
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #9CA3AF;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
     </style>
 </head>
 <body class="font-sans">
@@ -61,30 +76,15 @@
             <div id="map"></div>
         </main>
 
-        <!-- Kolom Kanan: Sidebar Chat BARU -->
+        <!-- Kolom Kanan: Sidebar Chat -->
         <aside class="w-full md:w-2/5 lg:w-1/3 h-full bg-white flex flex-col flex-shrink-0 border-l border-gray-200">
             
             <!-- Area Pesan Chat -->
             <div id="chat-messages" class="chat-messages flex-grow p-4 overflow-y-auto">
-                <!-- Contoh Percakapan -->
-                <div class="message-user mb-4 flex justify-end">
-                    <div class="bg-blue-600 p-3 rounded-lg text-white max-w-xs shadow">
-                        <p>Apa informasi tentang Tanjung Jabung?</p>
-                    </div>
-                </div>
+                <!-- Pesan awal -->
                 <div class="message-ai mb-4 flex">
                     <div class="bg-gray-200 p-3 rounded-lg text-gray-800">
-                        <p><strong>Tanjung Jabung Barat</strong> adalah sebuah kabupaten di <strong>Provinsi Jambi</strong>, Indonesia. Koordinat wilayah ini sekitar 1.1358° LS, 103.0636° BT. Kerajinan khas daerah ini antara lain: "Anyaman purun", anyaman dari tumbuhan purun untuk membuat tikar dan tas. "Kerajinan batik Jambi", motif khas seperti durian pecah dan kapal sanggat. "Kerajinan rotan dan bambu", digunakan untuk membuat perabotan rumah tangga.</p>
-                    </div>
-                </div>
-                 <div class="message-user mb-4 flex justify-end">
-                    <div class="bg-blue-600 p-3 rounded-lg text-white max-w-xs shadow">
-                        <p>Apa informasi tentang Ketapang?</p>
-                    </div>
-                </div>
-                <div class="message-ai mb-4 flex">
-                    <div class="bg-gray-200 p-3 rounded-lg text-gray-800">
-                        <p><strong>Ketapang</strong> adalah sebuah kabupaten di <strong>Provinsi Kalimantan Barat</strong>, Indonesia. Terletak di koordinat sekitar 1.850° LS, 109.966° BT. Kerajinan khas Ketapang antara lain: Anyaman rotan dan bambu, Tenun ikat khas Dayak, Kerajinan manik-manik dan hiasan tradisional suku Dayak.</p>
+                        <p>Selamat datang di <strong>KriyaIn.ai</strong>! Klik sebuah provinsi di peta atau ajukan pertanyaan di bawah untuk mengetahui potensi kerajinan dan ekspornya.</p>
                     </div>
                 </div>
             </div>
@@ -92,8 +92,8 @@
             <!-- Area Input Chat -->
             <div class="chat-input p-4 border-t border-gray-200 bg-white">
                 <div class="relative flex items-center">
-                    <input type="text" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik pesan..." />
-                    <button class="absolute right-2 bg-blue-600 p-2 rounded-md text-white hover:bg-blue-700" title="Kirim">
+                    <input type="text" id="chat-input-field" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 pr-16 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ketik pesan..." />
+                    <button id="send-button" class="absolute right-2 bg-blue-600 p-2 rounded-md text-white hover:bg-blue-700" title="Kirim">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                           <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009.894 15V4.106A1 1 0 0010.894 2.553z" />
                         </svg>
@@ -105,83 +105,125 @@
     </div>
 
     <script>
-        // Inisialisasi Peta Leaflet
-        var map = L.map('map').setView([-2.5, 118.0], 5);
-        var geojsonLayer;
-        var lastClickedLayer;
+        // --- Inisialisasi Peta & Variabel Global ---
+        const map = L.map('map').setView([-2.5, 118.0], 5);
+        let geojsonLayer;
+        let lastClickedLayer;
+        let chatHistory = []; // Menyimpan riwayat percakapan untuk konteks
 
-        // Menambahkan Tile Layer dari OpenStreetMap
+        // --- Elemen DOM ---
+        const chatMessages = document.getElementById('chat-messages');
+        const chatInputField = document.getElementById('chat-input-field');
+        const sendButton = document.getElementById('send-button');
+
+        // --- Inisialisasi Peta ---
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
-        // Fungsi untuk menambahkan pesan baru ke chat
-        function addMessageToChat(text, type) {
-            const chatMessages = document.getElementById('chat-messages');
+        // --- Fungsi-Fungsi Chat ---
+
+        // Menampilkan pesan di UI
+        function displayMessage(text, type) {
             const messageContainer = document.createElement('div');
-            
+            let content;
             if (type === 'user') {
                 messageContainer.className = 'message-user mb-4 flex justify-end';
-                messageContainer.innerHTML = `<div class="bg-blue-600 p-3 rounded-lg text-white max-w-xs shadow"><p>${text}</p></div>`;
-            } else {
+                content = `<div class="bg-blue-600 p-3 rounded-lg text-white max-w-xs shadow"><p>${text}</p></div>`;
+            } else if (type === 'ai') {
                 messageContainer.className = 'message-ai mb-4 flex';
-                messageContainer.innerHTML = `<div class="bg-gray-200 p-3 rounded-lg text-gray-800"><p>${text}</p></div>`;
+                content = `<div class="bg-gray-200 p-3 rounded-lg text-gray-800"><p>${text}</p></div>`;
+            } else { // Typing indicator
+                messageContainer.className = 'message-ai mb-4 flex';
+                content = `<div class="bg-gray-200 p-3 rounded-lg text-gray-800"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
             }
-            
+            messageContainer.innerHTML = content;
             chatMessages.appendChild(messageContainer);
-            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll ke bawah
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return messageContainer;
         }
 
-        // Fungsi yang dijalankan saat sebuah wilayah di peta diklik
-        function onRegionClick(e) {
-            var layer = e.target;
-            var props = layer.feature.properties;
-            var regionName = props.state || props.name || 'wilayah ini';
+        // Memanggil Gemini API
+        async function callGeminiAPI(prompt) {
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // Dibiarkan kosong, akan diisi oleh environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
-            // Reset style layer yang diklik sebelumnya
-            if (lastClickedLayer) {
-                geojsonLayer.resetStyle(lastClickedLayer);
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates[0]?.content?.parts[0]) {
+                    const aiText = result.candidates[0].content.parts[0].text;
+                    chatHistory.push({ role: "model", parts: [{ text: aiText }] });
+                    return aiText;
+                }
+                return "Maaf, saya tidak bisa memberikan respons saat ini.";
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                return "Terjadi kesalahan saat menghubungi AI. Silakan coba lagi.";
             }
+        }
+
+        // Mengirim pesan (main logic)
+        async function handleSendMessage(promptText) {
+            if (!promptText.trim()) return;
             
-            // Beri highlight pada layer yang baru diklik
-            layer.setStyle({
-                weight: 3,
-                color: '#0056b3',
-                fillOpacity: 0.5
-            });
+            displayMessage(promptText, 'user');
+            const typingIndicator = displayMessage('', 'typing');
+
+            const aiResponse = await callGeminiAPI(promptText);
+            
+            typingIndicator.remove();
+            displayMessage(aiResponse.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>'), 'ai');
+        }
+        
+        // --- Event Listeners ---
+        sendButton.addEventListener('click', () => handleSendMessage(chatInputField.value));
+        chatInputField.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage(chatInputField.value);
+                chatInputField.value = '';
+            }
+        });
+
+        // --- Fungsi-Fungsi Peta ---
+        function onRegionClick(e) {
+            const layer = e.target;
+            const props = layer.feature.properties;
+            const regionName = props.state || props.name || 'wilayah ini';
+
+            if (lastClickedLayer) geojsonLayer.resetStyle(lastClickedLayer);
+            layer.setStyle({ weight: 3, color: '#0056b3', fillOpacity: 0.5 });
             lastClickedLayer = layer;
 
-            // Tambahkan pesan ke chat
-            addMessageToChat(`Tolong berikan informasi tentang ${regionName}.`, 'user');
-            addMessageToChat(`Tentu! Mencari informasi untuk <strong>${regionName}</strong>... (Ini adalah contoh, data AI belum terhubung)`, 'ai');
+            const prompt = `Berikan informasi mengenai potensi kerajinan tangan dan potensi ekspor dari provinsi ${regionName}, Indonesia.`;
+            handleSendMessage(prompt);
 
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                 layer.bringToFront();
             }
         }
 
-        // Memuat dan menampilkan data GeoJSON untuk wilayah Indonesia
+        // Memuat data GeoJSON
         fetch('https://raw.githubusercontent.com/superpikar/indonesia-geojson/master/indonesia-province.json')
             .then(response => response.json())
             .then(data => {
                 geojsonLayer = L.geoJson(data, {
-                    style: {
-                        color: "#007bff",
-                        weight: 1,
-                        opacity: 0.65,
-                        fillColor: "#007bff",
-                        fillOpacity: 0.1
-                    },
-                    onEachFeature: function(feature, layer) {
-                        layer.on({
-                            click: onRegionClick
-                        });
-                    }
+                    style: { color: "#007bff", weight: 1, opacity: 0.65, fillColor: "#007bff", fillOpacity: 0.1 },
+                    onEachFeature: (feature, layer) => layer.on({ click: onRegionClick })
                 }).addTo(map);
             })
             .catch(error => console.error('Error loading GeoJSON:', error));
-
+            
     </script>
 
 </body>
